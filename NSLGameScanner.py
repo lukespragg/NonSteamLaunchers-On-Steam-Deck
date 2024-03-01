@@ -180,7 +180,13 @@ hero64 = ""
 
 # Load the existing shortcuts
 with open(f"{logged_in_home}/.steam/root/userdata/{steamid3}/config/shortcuts.vdf", 'rb') as file:
-    shortcuts = vdf.binary_loads(file.read())
+    shortcuts = vdf.binary_loads(file.read()).get('shortcuts', {})
+
+# Print the existing shortcuts
+if shortcuts:
+    # Print the shortcut information in JSON format
+    print(json.dumps(shortcuts), flush=True)  # Print to stdout
+
 # Open the config.vdf file
 with open(f"{logged_in_home}/.steam/root/config/config.vdf", 'r') as file:
     config_data = vdf.load(file)
@@ -321,14 +327,14 @@ def add_compat_tool(app_id, launchoptions):
 
 def check_if_shortcut_exists(shortcut_id, display_name, exe_path, start_dir, launch_options):
     # Check if the game already exists in the shortcuts using the id
-    if any(s.get('appid') == shortcut_id for s in shortcuts['shortcuts'].values()):
+    if any(s.get('appid') == shortcut_id for s in shortcuts.values()):
         print(f"Existing shortcut found based on shortcut ID for game {display_name}. Skipping creation.")
         return True
     # Check if the game already exists in the shortcuts using the fields (probably unnecessary)
-    if any(s.get('appname') == display_name and s.get('exe') == exe_path and s.get('StartDir') == start_dir and s.get('LaunchOptions') == launch_options for s in shortcuts['shortcuts'].values()):
+    if any(s.get('appname') == display_name and s.get('exe') == exe_path and s.get('StartDir') == start_dir and s.get('LaunchOptions') == launch_options for s in shortcuts.values()):
         print(f"Existing shortcut found based on matching fields for game {display_name}. Skipping creation.")
         return True
-    if any(s.get('AppName') == display_name and s.get('Exe') == exe_path and s.get('StartDir') == start_dir and s.get('LaunchOptions') == launch_options for s in shortcuts['shortcuts'].values()):
+    if any(s.get('AppName') == display_name and s.get('Exe') == exe_path and s.get('StartDir') == start_dir and s.get('LaunchOptions') == launch_options for s in shortcuts.values()):
         print(f"Existing shortcut found based on matching fields for game {display_name}. Skipping creation.")
         return True
 #End of Code
@@ -396,7 +402,7 @@ def create_new_entry(shortcutdirectory, appname, launchoptions, startingdir):
         'Logo': logo64,
     }
     # Add the new entry to the shortcuts dictionary and add proton
-    shortcuts['shortcuts'][str(signed_shortcut_id)] = new_entry
+    shortcuts[str(signed_shortcut_id)] = new_entry
     decky_shortcuts[appname] = decky_entry
     print(f"Added new entry for {appname} to shortcuts.")
     new_shortcuts_added = True
@@ -514,20 +520,25 @@ for launcher_name, folder in folder_names.items():
     # Check if the folder exists
     if os.path.exists(current_path):
         print(f'{launcher_name}: {folder} exists')
-        # Get the app ID for this launcher from the app_id_to_name dictionary
-        appid = app_ids.get(launcher_name)
+  
+        # Check if NonSteamLaunchers is already a symbolic link
+        if os.path.islink(current_path):
+            print(f'{launcher_name} is already a symbolic link')
+        else:
+            # Get the app ID for this launcher from the app_id_to_name dictionary
+            appid = app_ids.get(launcher_name)
 
-        # Define the new path of the folder
-        new_path = os.path.join(compatdata_dir, str(appid))
+            # Define the new path of the folder
+            new_path = os.path.join(compatdata_dir, str(appid))
 
-        # Rename the folder
-        os.rename(current_path, new_path)
+            # Rename the folder
+            os.rename(current_path, new_path)
 
-        # Define the path of the symbolic link
-        symlink_path = os.path.join(compatdata_dir, folder)
+            # Define the path of the symbolic link
+            symlink_path = os.path.join(compatdata_dir, folder)
 
-        # Create a symbolic link to the renamed folder
-        os.symlink(new_path, symlink_path)
+            # Create a symbolic link to the renamed folder
+            os.symlink(new_path, symlink_path)
     else:
         print(f'{launcher_name}: {folder} does not exist')
 
@@ -562,7 +573,7 @@ if app_ids and os.path.exists(os.path.join(compatdata_dir, 'NonSteamLaunchers'))
 
 # Print the existing shortcuts
 print("Existing Shortcuts:")
-for shortcut in shortcuts['shortcuts'].values():
+for shortcut in shortcuts.values():
     if shortcut.get('appname') is None:
         print(f"AppID for {shortcut.get('AppName')}: {shortcut.get('appid')}")
     else:

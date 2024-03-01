@@ -55,7 +55,7 @@ args=("$@")
 
 #Download Modules
 # Define the repository and the folders to clone
-repo_url='https://github.com/moraroy/NonSteamLaunchers-On-Steam-Deck/archive/refs/heads/main.zip'
+repo_url='https://github.com/lukespragg/NonSteamLaunchers-On-Steam-Deck/archive/refs/heads/main.zip'
 folders_to_clone=('requests' 'urllib3' 'steamgrid' 'vdf')
 
 # Define the parent folder
@@ -112,8 +112,9 @@ systemctl --user daemon-reload
 python_script_path="${logged_in_home}/.config/systemd/user/NSLGameScanner.py"
 
 # Define your GitHub link
-github_link="https://raw.githubusercontent.com/moraroy/NonSteamLaunchers-On-Steam-Deck/main/NSLGameScanner.py"
+github_link="https://raw.githubusercontent.com/lukespragg/NonSteamLaunchers-On-Steam-Deck/main/NSLGameScanner.py"
 curl -o $python_script_path $github_link
+chmod +x $python_script_path
 
 # Define the path to the env_vars file
 env_vars="${logged_in_home}/.config/systemd/user/env_vars"
@@ -2563,7 +2564,7 @@ python_version=$(python -c 'import sys; print(f"{sys.version_info.major}.{sys.ve
 mkdir -p "${download_dir}/lib/python${python_version}/site-packages/vdf"
 
 # Download the vdf module from the GitHub repository
-download_url="https://github.com/moraroy/NonSteamLaunchers-On-Steam-Deck/raw/main/Modules/vdf/__init__.py"
+download_url="https://github.com/lukespragg/NonSteamLaunchers-On-Steam-Deck/raw/main/Modules/vdf/__init__.py"
 wget -P "${download_dir}/lib/python${python_version}/site-packages/vdf" "$download_url"
 
 # Set the PYTHONPATH environment variable
@@ -2757,11 +2758,11 @@ fi
 
 
 
-#Setup NSLGameScanner.service
+# Setup NSLGameScanner.service
 python_script_path="${logged_in_home}/.config/systemd/user/NSLGameScanner.py"
 
 # Define your GitHub link
-github_link="https://raw.githubusercontent.com/moraroy/NonSteamLaunchers-On-Steam-Deck/main/NSLGameScanner.py"
+github_link="https://raw.githubusercontent.com/lukespragg/NonSteamLaunchers-On-Steam-Deck/main/NSLGameScanner.py"
 
 # Check if the service is already running
 service_status=$(systemctl --user is-active nslgamescanner.service)
